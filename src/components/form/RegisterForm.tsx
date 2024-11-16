@@ -16,6 +16,7 @@ import {
 import { Eye, EyeClosed, Loader2 } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const formSchema = z
   .object({
@@ -36,9 +37,13 @@ const formSchema = z
   });
 
 const RegisterForm = () => {
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [showConfirmPassword, setShowConfirmPassword] =
+    useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
+  const [successRegister, setSuccessRegister] = useState<string>("");
+  const { push } = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -50,17 +55,34 @@ const RegisterForm = () => {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
+    setError("");
+    const res = await fetch("/api/auth/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: values.email,
+        password: values.password,
+        username: values.username,
+      }),
+    });
 
-    // Simulate a delay (e.g., saving data)
-    setTimeout(() => {
+    if (res.ok) {
+      form.reset();
       setLoading(false);
-    }, 500); // 500ms delay
-
-    console.log(values);
+      setSuccessRegister(
+        "Registration successful! Please check your email to verify your account."
+      );
+      setTimeout(() => {
+        push("/login");
+      }, 4000);
+    } else {
+      setError("Email or username already exist");
+      setLoading(false);
+    }
   }
 
   const handleShowPassword = () => {
@@ -84,6 +106,14 @@ const RegisterForm = () => {
               Socialfy
             </span>
           </p>
+          {error !== "" && (
+            <div className="text-red-600 font-bold mb-3">{error}</div>
+          )}
+          {successRegister !== "" && (
+            <div className="text-green-600 font-bold mb-3">
+              {successRegister}
+            </div>
+          )}
         </div>
         <FormField
           control={form.control}
