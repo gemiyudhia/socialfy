@@ -16,9 +16,11 @@ import {
 import { Eye, EyeClosed, Loader2 } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
-  username: z.string().min(5, "Username or email is required").max(50),
+  email: z.string().min(5, "Username or email is required").max(50),
   password: z
     .string()
     .min(1, "Password is required")
@@ -26,28 +28,52 @@ const formSchema = z.object({
 });
 
 const LoginForm = () => {
-  const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
+  const [emailNotVerified, setEmailNotVerified] = useState<boolean>(false); // State untuk notifikasi
+  const { push } = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: "",
+      email: "",
       password: "",
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setError("");
+    setEmailNotVerified(false);
     setLoading(true);
 
-    // Simulate a delay (e.g., saving data)
-    setTimeout(() => {
-      setLoading(false);
-    }, 500); // 500ms delay
+    try {
+      const res = await signIn("credentials", {
+        redirect: false,
+        email: values.email,
+        password: values.password,
+      });
 
-    console.log(values);
+      if (!res?.error) {
+        form.reset();
+        setLoading(false);
+        push("/");
+      } else {
+        setLoading(false);
+        if (res.error === "Email not verified") {
+          setEmailNotVerified(true)
+        } else if (res.status === 401) {
+          setError("Invalid username or password");
+        } else if (res.error === "User not found") {
+          setError("User not found. Please check your email or username.");
+        } else {
+          setError("Something went wrong. Please try again.");
+        }
+      }
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+    }
   }
 
   const handleShowPassword = () => {
@@ -58,7 +84,9 @@ const LoginForm = () => {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <div className="space-y-2">
-          <h1 className="text-textPrimary text-4xl md:text-5xl font-black">Sign in</h1>
+          <h1 className="text-textPrimary text-4xl md:text-5xl font-black">
+            Sign in
+          </h1>
           <p className="text-base text-gray-600 md:text-lg">
             Welcome back to{" "}
             <span className="text-textPrimary font-medium italic">
@@ -66,9 +94,16 @@ const LoginForm = () => {
             </span>
           </p>
         </div>
+        {error && <div className="text-red-600 font-bold mb-3">{error}</div>}
+        {emailNotVerified && (
+          <div className="text-orange-600 font-bold mb-3">
+            Your email is not verified. Please check your inbox for the
+            verification link.
+          </div>
+        )}
         <FormField
           control={form.control}
-          name="username"
+          name="email"
           render={({ field }) => (
             <FormItem>
               <FormLabel className="md:text-lg">Email or Username</FormLabel>
@@ -89,7 +124,7 @@ const LoginForm = () => {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className='md:text-lg'>Password</FormLabel>
+              <FormLabel className="md:text-lg">Password</FormLabel>
               <FormControl>
                 <div className="relative">
                   <Input
@@ -116,7 +151,10 @@ const LoginForm = () => {
           )}
         />
         {loading ? (
-          <Button disabled className="w-full py-6 bg-textPrimary font-semibold md:text-lg">
+          <Button
+            disabled
+            className="w-full py-6 bg-textPrimary font-semibold md:text-lg"
+          >
             <Loader2 className="animate-spin" />
             Please wait
           </Button>
@@ -130,7 +168,10 @@ const LoginForm = () => {
         )}
 
         <div className="text-center">
-          <Link href="/register" className="text-textPrimary hover:underline md:text-lg">
+          <Link
+            href="/register"
+            className="text-textPrimary hover:underline md:text-lg"
+          >
             Don&apos;t have an account?
           </Link>
         </div>

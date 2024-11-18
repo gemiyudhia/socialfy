@@ -78,7 +78,7 @@ const RegisterForm = () => {
       );
       setTimeout(() => {
         push("/login");
-      }, 4000);
+      }, 3000);
     } else {
       setError("Email or username already exist");
       setLoading(false);
@@ -174,7 +174,7 @@ const RegisterForm = () => {
                   <Input
                     placeholder="Confirm Password..."
                     className="py-6 md:text-lg"
-                    type={showPassword ? "text" : "password"}
+                    type={showConfirmPassword ? "text" : "password"}
                     {...field}
                   />
                   <div
