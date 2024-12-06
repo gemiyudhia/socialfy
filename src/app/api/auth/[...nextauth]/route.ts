@@ -26,6 +26,8 @@ const authOptions: NextAuthOptions = {
         try {
           const response = await login({ email, password });
 
+          console.log("Firebase response:", response);
+
           if (!response.status) {
             throw new Error(response.error || "Login failed");
           }
@@ -67,6 +69,10 @@ const authOptions: NextAuthOptions = {
       }
       return session;
     },
+  },
+
+  pages: {
+    signIn: "/login",
   },
 };
 

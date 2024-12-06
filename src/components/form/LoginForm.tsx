@@ -53,11 +53,12 @@ const LoginForm = () => {
         email: values.email,
         password: values.password,
       });
+      console.log(res);
 
       if (!res?.error) {
         form.reset();
         setLoading(false);
-        push("/");
+        push("/home");
       } else {
         setLoading(false);
         if (res.error === "Email not verified") {

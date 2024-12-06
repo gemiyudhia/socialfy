@@ -1,4 +1,5 @@
 import { User } from "next-auth";
+import { JWT as DefaultJWT } from "next-auth/jwt";
 
 export interface CustomUser extends User {
   email: string;
@@ -6,11 +7,10 @@ export interface CustomUser extends User {
   role: string;
 }
 
-export interface CustomToken extends JWT {
+export interface CustomToken extends DefaultJWT {
   email: string;
   username: string;
   role: string;
-  sub?: string; // ID pengguna
 }
 
 export interface JWT {

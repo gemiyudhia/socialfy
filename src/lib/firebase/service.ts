@@ -99,43 +99,6 @@ export async function register(data: {
   }
 }
 
-// export async function login(data: { email: string; password: string }) {
-//   try {
-//     const userCredential = await signInWithEmailAndPassword(
-//       auth,
-//       data.email,
-//       data.password
-//     );
-//     const user = userCredential.user;
-
-//     if (!user.emailVerified) {
-//       return { status: false, error: "Email not verified" };
-//     }
-
-//     const snapshot = await getDocs(
-//       query(collection(firestore, "users"), where("email", "==", user.email))
-//     );
-
-//     if (snapshot.empty) {
-//       return { status: false, error: "User not found in database" };
-//     }
-
-//     const userData = snapshot.docs[0].data();
-
-//     return {
-//       status: true,
-//       user: {
-//         email: user.email,
-//         username: userData.username,
-//         role: userData.role,
-//       } as CustomUser,
-//     };
-//   } catch (error) {
-//     console.error("Login error:", error);
-//     return { status: false, error: "Invalid credentials" };
-//   }
-// }
-
 export async function login(data: { email: string; password: string }) {
   try {
     // Periksa apakah input adalah email atau username
