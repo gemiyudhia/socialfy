@@ -1,51 +1,44 @@
 "use client";
 
-import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FaHome, FaPlus, FaUser } from "react-icons/fa";
-import { Button } from "../ui/button";
 
 export default function Navbar() {
   const pathname = usePathname();
-  const { status }: { status: string } =
-    useSession();
 
   return (
-    <div className="fixed bottom-0 w-full bg-gray-800 text-white p-4">
+    <div className="fixed rounded-full bottom-4 pt-5 w-full bg-white shadow-[0_-4px_10px_rgba(0,0,0,0.2)]">
       <nav className="flex justify-center items-center">
-        <div className="flex justify-between w-full mx-6">
-          <Link href="/home">
+        <div className="flex justify-between w-full max-w-md mx-12 relative">
+          {/* Link Home */}
+          <Link href="/">
             <FaHome
               className={`${
-                pathname === "/home" ? "bg-white text-gray-800" : "text-white"
-              } text-4xl p-1 rounded-lg`}
+                pathname === "/" ? "text-gray-800" : "text-gray-400"
+              } text-3xl`}
             />
           </Link>
+
+          {/* Link Posting */}
           <Link href="/posting">
-            <FaPlus
-              className={`${
-                pathname === "/posting"
-                  ? "bg-white text-gray-800"
-                  : "text-white"
-              } text-4xl p-1 rounded-lg`}
-            />
+            <div className="relative -top-10 bg-textPrimary p-5 rounded-full shadow-md">
+              <FaPlus
+                className={`${
+                  pathname === "/posting" ? "text-white" : "text-white"
+                } text-3xl`}
+              />
+            </div>
           </Link>
+
+          {/* Link Profile */}
           <Link href="/profile">
             <FaUser
               className={`${
-                pathname === "/profile"
-                  ? "bg-white text-gray-800"
-                  : "text-white"
-              } text-4xl p-1 rounded-lg`}
+                pathname === "/profile" ? "text-gray-800" : "text-gray-400"
+              } text-3xl`}
             />
           </Link>
-
-          {status === "authenticated" && (
-            <Button onClick={() => signOut({ callbackUrl: "/login" })}>
-              Logout
-            </Button>
-          )}
         </div>
       </nav>
     </div>
