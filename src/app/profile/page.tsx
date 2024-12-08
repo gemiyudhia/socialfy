@@ -1,7 +1,10 @@
+import LogoutButton from "@/components/profileComponents/LogoutButton";
+
 export default function ProfilePage() {
+
   return (
     <div>
-      <h1>Profile Page</h1>
+      <LogoutButton />
     </div>
-  )
+  );
 }

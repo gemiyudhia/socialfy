@@ -10,6 +10,7 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        like: "#FF0000",
         textPrimary: "#103783",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
@@ -56,6 +57,21 @@ const config: Config = {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+
+      animation: {
+        like: "like 0.3s ease-in-out",
+      },
+
+      keyframes: {
+        like: {
+          "0%, 100%": {
+            transform: "scale(1)",
+          },
+          "50%": {
+            transform: "scale(1.5)",
+          },
+        },
       },
     },
   },

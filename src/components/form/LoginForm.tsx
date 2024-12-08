@@ -58,7 +58,7 @@ const LoginForm = () => {
       if (!res?.error) {
         form.reset();
         setLoading(false);
-        push("/home");
+        push("/");
       } else {
         setLoading(false);
         if (res.error === "Email not verified") {

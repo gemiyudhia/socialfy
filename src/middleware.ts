@@ -8,7 +8,7 @@ export default async function middleware(req: NextRequest) {
 
   // Jika user sudah login dan mencoba mengakses /login
   if (pathname === "/login" && token) {
-    const homeUrl = new URL("/home", req.url); // Halaman utama yang diinginkan
+    const homeUrl = new URL("/", req.url); // Halaman utama yang diinginkan
     return NextResponse.redirect(homeUrl);
   }
 
@@ -23,5 +23,5 @@ export default async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/home", "/profile", "/posting", "/login", "/register"], // Tambahkan semua halaman yang diperiksa
+  matcher: ["/", "/profile", "/posting", "/login", "/register"], // Tambahkan semua halaman yang diperiksa
 };

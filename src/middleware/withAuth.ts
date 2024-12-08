@@ -11,7 +11,7 @@ const authPage = ["/login", "/register"];
 
 export default function withAuth(
   middleware: NextMiddleware,
-  requireAuth: string[] = ["/home"] // Daftar halaman yang memerlukan autentikasi
+  requireAuth: string[] = ["/"] // Daftar halaman yang memerlukan autentikasi
 ) {
   return async (req: NextRequest, next: NextFetchEvent) => {
     const pathname = req.nextUrl.pathname;
@@ -26,7 +26,7 @@ export default function withAuth(
     if (authPage.includes(pathname)) {
       // Jika token ditemukan, redirect ke halaman utama
       if (token) {
-        return NextResponse.redirect(new URL("/home", req.url));
+        return NextResponse.redirect(new URL("/", req.url));
       }
       return NextResponse.next(); // Izinkan akses ke login/register jika tidak ada token
     }
