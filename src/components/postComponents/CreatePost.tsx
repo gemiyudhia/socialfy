@@ -2,15 +2,20 @@
 
 import { useState } from "react";
 import { useSession } from "next-auth/react";
+import UploadImage from "./UploadImage";
+import CaptionPost from "./CaptionPost";
+import { Button } from "../ui/button";
+import ImagePost from "./ImagePost";
+import { Loader2 } from "lucide-react";
+import Header from "../homeComponent/Header";
 
 export default function CreatePost() {
   const [image, setImage] = useState<File | null>(null);
   const [caption, setCaption] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
-  // Mengambil username dari session menggunakan next-auth
   const { data: session, status } = useSession();
-  const username = session?.user?.username || ""; // Gunakan "name" sesuai dengan properti username dalam session
+  const username = session?.user?.username || "";
 
   const handleSubmit = async () => {
     if (!image || !caption) {
@@ -20,15 +25,14 @@ export default function CreatePost() {
 
     setLoading(true);
 
-    // Convert image to Base64
     const reader = new FileReader();
     reader.onloadend = async () => {
       const base64Image = reader.result as string;
 
       const postData = {
-        username, // Sertakan username dalam data yang akan dikirim
+        username,
         caption,
-        imageUrl: base64Image, // store base64 string here
+        imageUrl: base64Image,
         createdAt: new Date().toISOString(),
       };
 
@@ -56,35 +60,42 @@ export default function CreatePost() {
         alert("An error occurred while creating the post.");
       }
     };
-    reader.readAsDataURL(image); // Convert to Base64
+    reader.readAsDataURL(image);
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen flex-col">
-      <h1>Create a Post</h1>
-      {status === "authenticated" ? (
-        <p>
-          Logged in as: <strong>{username}</strong>
-        </p>
-      ) : (
-        <p>Loading session...</p>
-      )}
-      <input
-        type="file"
-        accept="image/*"
-        onChange={(e) => setImage(e.target.files ? e.target.files[0] : null)}
-      />
-      <textarea
-        placeholder="Enter caption..."
-        value={caption}
-        onChange={(e) => setCaption(e.target.value)}
-      />
-      <button
-        onClick={handleSubmit}
-        disabled={loading || status !== "authenticated"}
-      >
-        {loading ? "Posting..." : "Post"}
-      </button>
+    <div className="flex justify-center items-center flex-col min-h-screen bg-gray-100 px-4 pb-32">
+      <Header />
+      <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6">
+        <h1 className="text-2xl font-semibold text-gray-800 mb-4">New Post</h1>
+        <UploadImage setImage={setImage} labelImage="Upload" />
+
+        <ImagePost image={image} />
+
+        <CaptionPost
+          caption={caption}
+          setCaption={setCaption}
+          labelCaption="Caption"
+        />
+        <Button
+          onClick={handleSubmit}
+          disabled={loading || status !== "authenticated"}
+          className={`w-full py-2 px-4 text-sm font-medium text-white rounded-lg focus:outline-none transition-colors ${
+            loading || status !== "authenticated"
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-blue-500 hover:bg-blue-600"
+          }`}
+        >
+          {loading ? (
+            <div className="flex items-center justify-center">
+              <Loader2 className="animate-spin mr-2" />
+              Please wait...
+            </div>
+          ) : (
+            "Post"
+          )}
+        </Button>
+      </div>
     </div>
   );
 }
