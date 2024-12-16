@@ -1,6 +1,4 @@
 import { app, auth } from "./init";
-import { CustomUser } from "@/types/next-auth";
-
 import {
   query,
   collection,
@@ -155,7 +153,7 @@ export async function login(data: { email: string; password: string }) {
         username: userData.username,
         role: userData.role,
         createdAt: userData.createdAt,
-      } as unknown as CustomUser,
+      },
     };
   } catch (error) {
     console.error("Login error:", error);
