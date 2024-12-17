@@ -6,6 +6,9 @@ import { useEffect, useState } from "react";
 import { collection, getDocs, orderBy, query } from "firebase/firestore";
 import { db } from "@/lib/firebase/init";
 
+// Import date formatting library for relative time
+import { formatDistanceToNowStrict } from "date-fns";
+
 interface PostData {
   id: string;
   username: string;
@@ -16,21 +19,38 @@ interface PostData {
 
 export default function Post() {
   const [posts, setPost] = useState<PostData[]>([]);
+  const [time, setTime] = useState<{ [key: string]: string }>({});
 
-useEffect(() => {
-  const fetchPost = async () => {
-    const postCollection = collection(db, "posts");
-    const postQuery = query(postCollection, orderBy("createdAt", "desc")); // Urutkan berdasarkan createdAt
-    const postSnapshot = await getDocs(postQuery);
-    const postList = postSnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    })) as PostData[];
-    setPost(postList);
-  };
+  // Fetch posts from Firebase Firestore
+  useEffect(() => {
+    const fetchPost = async () => {
+      const postCollection = collection(db, "posts");
+      const postQuery = query(postCollection, orderBy("createdAt", "desc")); // Sort by createdAt
+      const postSnapshot = await getDocs(postQuery);
+      const postList = postSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as PostData[];
 
-  fetchPost();
-}, []);
+      setPost(postList);
+
+      // Start real-time time updates
+      const updateTime = setInterval(() => {
+        const updatedTime = postList.reduce((acc, post) => {
+          acc[post.id] = formatDistanceToNowStrict(new Date(post.createdAt), {
+            addSuffix: true,
+          });
+          return acc;
+        }, {} as { [key: string]: string });
+
+        setTime(updatedTime);
+      }, 60000); // Update every minute
+
+      return () => clearInterval(updateTime); // Cleanup on unmount
+    };
+
+    fetchPost();
+  }, []);
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -48,7 +68,9 @@ useEffect(() => {
               />
               <div className="ml-3">
                 <p className="font-semibold text-sm">{post.username}</p>
-                <p className="text-xs text-gray-500">{post.createdAt}</p>
+                <p className="text-xs text-gray-500">
+                  {time[post.id] || "Loading..."}
+                </p>
               </div>
             </div>
 
