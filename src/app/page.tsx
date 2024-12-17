@@ -6,7 +6,9 @@ export default function HomePage() {
     <div className="min-h-screen bg-gray-100 p-4">
       <div className="flex-1 p-4 md:ml-16">
         <div className="max-w-md mx-auto space-y-6">
-          <Header />
+          <div className="md:hidden">
+            <Header />
+          </div>
           <FeedSection />
         </div>
       </div>

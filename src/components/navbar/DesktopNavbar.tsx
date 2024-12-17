@@ -1,14 +1,18 @@
-'use client'
+"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FaHome, FaPlus, FaUser } from "react-icons/fa";
+import Header from "../homeComponent/Header";
 
 export default function DesktopNavbar() {
   const pathname = usePathname();
 
   return (
     <div className="hidden md:flex flex-col justify-center fixed top-0 left-0 h-full w-1/6 bg-gray-100 shadow-xl border-r-[1px] border-slate-300">
+      <div className="mx-5">
+        <Header />
+      </div>
       <nav className="flex flex-col space-y-12 mx-5 mt-10">
         {/* Link Home */}
         <Link href="/" className="flex items-center gap-x-6">

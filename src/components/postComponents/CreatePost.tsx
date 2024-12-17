@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import UploadImage from "./UploadImage";
 import CaptionPost from "./CaptionPost";
@@ -9,19 +9,32 @@ import ImagePost from "./ImagePost";
 import { Loader2 } from "lucide-react";
 import Header from "../homeComponent/Header";
 import { useRouter } from "next/navigation";
+import NotificationModal from "../notificationModal/NotificationModal";
 
 export default function CreatePost() {
   const [image, setImage] = useState<File | null>(null);
   const [caption, setCaption] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+  const [success, setSuccess] = useState<string>("");
+  const [error, setError] = useState<string>("");
   const { push } = useRouter();
 
   const { data: session, status } = useSession();
   const username = session?.user?.username || "";
 
+  useEffect(() => {
+    if (success || error) {
+      const timer = setTimeout(() => {
+        setSuccess("");
+        setError("");
+      }, 5000); 
+      return () => clearTimeout(timer);
+    }
+  }, [success, error]);
+
   const handleSubmit = async () => {
     if (!image || !caption) {
-      alert("Please provide an image and a caption.");
+      setError("Please provide an image and a caption.");
       return;
     }
 
@@ -50,17 +63,17 @@ export default function CreatePost() {
         setLoading(false);
 
         if (response.ok) {
-          alert("Post created successfully!");
+          setSuccess("Post created successfully!");
           setImage(null);
           setCaption("");
           push("/");
         } else {
-          alert(data.message || "Failed to create post.");
+          setError(data.message || "Failed to create post.");
         }
       } catch (error) {
         console.error("Error in handleSubmit:", error);
         setLoading(false);
-        alert("An error occurred while creating the post.");
+        setError("An error occurred while creating the post.");
       }
     };
     reader.readAsDataURL(image);
@@ -68,9 +81,10 @@ export default function CreatePost() {
 
   return (
     <div className="flex justify-center items-center flex-col min-h-screen bg-gray-100 px-4 pb-32">
-      <Header />
+      <div className="md:hidden">
+        <Header />
+      </div>
       <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6 grid gap-6 md:grid-cols-2">
-        {/* Bagian Kiri: Upload Image */}
         <div>
           <h1 className="text-2xl font-semibold text-gray-800 mb-4 text-center md:text-left">
             New Post
@@ -79,7 +93,6 @@ export default function CreatePost() {
           <ImagePost image={image} />
         </div>
 
-        {/* Bagian Kanan: Caption dan Tombol */}
         <div className="flex flex-col mt-6">
           <CaptionPost
             caption={caption}
@@ -106,6 +119,16 @@ export default function CreatePost() {
           </Button>
         </div>
       </div>
+
+      <NotificationModal
+        isOpen={!!success || !!error}
+        onClose={() => {
+          setSuccess(""); 
+          setError(""); 
+        }}
+        type={success ? "success" : "error"}
+        message={success || error}
+      />
     </div>
   );
 }
