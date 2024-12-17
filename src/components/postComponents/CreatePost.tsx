@@ -69,35 +69,42 @@ export default function CreatePost() {
   return (
     <div className="flex justify-center items-center flex-col min-h-screen bg-gray-100 px-4 pb-32">
       <Header />
-      <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6">
-        <h1 className="text-2xl font-semibold text-gray-800 mb-4">New Post</h1>
-        <UploadImage setImage={setImage} labelImage="Upload" />
+      <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6 grid gap-6 md:grid-cols-2">
+        {/* Bagian Kiri: Upload Image */}
+        <div>
+          <h1 className="text-2xl font-semibold text-gray-800 mb-4 text-center md:text-left">
+            New Post
+          </h1>
+          <UploadImage setImage={setImage} labelImage="Upload" />
+          <ImagePost image={image} />
+        </div>
 
-        <ImagePost image={image} />
-
-        <CaptionPost
-          caption={caption}
-          setCaption={setCaption}
-          labelCaption="Caption"
-        />
-        <Button
-          onClick={handleSubmit}
-          disabled={loading || status !== "authenticated"}
-          className={`w-full py-2 px-4 text-sm font-medium text-white rounded-lg focus:outline-none transition-colors ${
-            loading || status !== "authenticated"
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-blue-500 hover:bg-blue-600"
-          }`}
-        >
-          {loading ? (
-            <div className="flex items-center justify-center">
-              <Loader2 className="animate-spin mr-2" />
-              Please wait...
-            </div>
-          ) : (
-            "Post"
-          )}
-        </Button>
+        {/* Bagian Kanan: Caption dan Tombol */}
+        <div className="flex flex-col mt-6">
+          <CaptionPost
+            caption={caption}
+            setCaption={setCaption}
+            labelCaption="Caption"
+          />
+          <Button
+            onClick={handleSubmit}
+            disabled={loading || status !== "authenticated"}
+            className={`w-full py-2 px-4 mt-6 text-sm font-medium text-white rounded-lg focus:outline-none transition-colors ${
+              loading || status !== "authenticated"
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-500 hover:bg-blue-600"
+            }`}
+          >
+            {loading ? (
+              <div className="flex items-center justify-center">
+                <Loader2 className="animate-spin mr-2" />
+                Please wait...
+              </div>
+            ) : (
+              "Post"
+            )}
+          </Button>
+        </div>
       </div>
     </div>
   );
