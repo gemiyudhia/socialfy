@@ -8,11 +8,13 @@ import { Button } from "../ui/button";
 import ImagePost from "./ImagePost";
 import { Loader2 } from "lucide-react";
 import Header from "../homeComponent/Header";
+import { useRouter } from "next/navigation";
 
 export default function CreatePost() {
   const [image, setImage] = useState<File | null>(null);
   const [caption, setCaption] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+  const { push } = useRouter();
 
   const { data: session, status } = useSession();
   const username = session?.user?.username || "";
@@ -51,6 +53,7 @@ export default function CreatePost() {
           alert("Post created successfully!");
           setImage(null);
           setCaption("");
+          push("/");
         } else {
           alert(data.message || "Failed to create post.");
         }
