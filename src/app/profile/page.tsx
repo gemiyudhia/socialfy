@@ -1,10 +1,10 @@
-import LogoutButton from "@/components/profileComponents/LogoutButton";
+import MainProfile from "@/components/profileComponents/MainProfile";
 
 export default function ProfilePage() {
 
   return (
     <div>
-      <LogoutButton />
+      <MainProfile />
     </div>
   );
 }
