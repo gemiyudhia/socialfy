@@ -1,10 +1,10 @@
-import MainProfile from "@/components/profileComponents/MainProfile";
+import MainComponent from "@/components/profileComponents/MainComponent";
 
 export default function ProfilePage() {
 
   return (
     <div>
-      <MainProfile />
+      <MainComponent />
     </div>
   );
 }

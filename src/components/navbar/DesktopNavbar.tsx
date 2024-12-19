@@ -9,7 +9,7 @@ export default function DesktopNavbar() {
   const pathname = usePathname();
 
   return (
-    <div className="hidden md:flex flex-col justify-center fixed top-0 left-0 h-full w-1/6 bg-gray-100 shadow-xl border-r-[1px] border-slate-300">
+    <div className="hidden md:flex flex-col justify-center fixed top-0 left-0 h-full w-64 bg-gray-100 shadow-xl border-r-[1px] border-slate-300">
       <div className="mx-5">
         <Header />
       </div>
@@ -31,27 +31,13 @@ export default function DesktopNavbar() {
             Home
           </p>
         </Link>
-
         {/* Link Posting */}
         <Link href="/post" className="flex items-center gap-x-3">
           <div className="bg-textPrimary p-3 rounded-full shadow-md">
-            <FaPlus
-              className={`${
-                pathname === "/post" ? "text-white" : "text-white"
-              } text-3xl`}
-            />
+            <FaPlus className="text-white text-3xl" />
           </div>
-          <p
-            className={`${
-              pathname === "/post"
-                ? "text-lg font-semibold"
-                : "text-gray-400 text-lg font-semibold"
-            }`}
-          >
-            Create
-          </p>
+          <p className="text-gray-400 text-lg font-semibold">Create</p>
         </Link>
-
         {/* Link Profile */}
         <Link href="/profile" className="flex items-center gap-x-6">
           <FaUser

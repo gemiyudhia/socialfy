@@ -1,14 +1,13 @@
 import MobileNavbar from "./MobileNavbar";
 import DesktopNavbar from "./DesktopNavbar";
+// import MainProfile from "../profileComponents/MainProfile";
 
 export default function Navbar() {
   return (
     <>
-      {/* Mobile Navbar */}
-      <MobileNavbar />
-
-      {/* Sidebar for Desktop */}
       <DesktopNavbar />
+
+      <MobileNavbar />
     </>
   );
 }
