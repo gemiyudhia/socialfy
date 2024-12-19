@@ -12,6 +12,7 @@ import {
   sendEmailVerification,
   signInWithEmailAndPassword,
 } from "firebase/auth";
+import { Post } from "@/types/post";
 
 const firestore = getFirestore(app);
 
@@ -158,5 +159,28 @@ export async function login(data: { email: string; password: string }) {
   } catch (error) {
     console.error("Login error:", error);
     return { status: false, error: "Invalid credentials" };
+  }
+}
+
+export async function fetchPostByUser(username: string): Promise<Post[]> {
+  try {
+    const postsRef = collection(firestore, "posts");
+    const q = query(postsRef, where("username", "==", username));
+    const querySnapshot = await getDocs(q);
+
+    return querySnapshot.docs.map((doc) => {
+      const data = doc.data();
+
+      return {
+        id: doc.id,
+        username: data.username,
+        caption: data.caption,
+        imageUrl: data.imageUrl,
+        createdAt: data.createdAt,
+      };
+    });
+  } catch (error) {
+    console.error("Error fetching posts: ", error);
+    throw new Error("Failed to fetch posts.");
   }
 }

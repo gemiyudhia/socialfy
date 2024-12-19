@@ -36,7 +36,15 @@ export default function DesktopNavbar() {
           <div className="bg-textPrimary p-3 rounded-full shadow-md">
             <FaPlus className="text-white text-3xl" />
           </div>
-          <p className="text-gray-400 text-lg font-semibold">Create</p>
+          <p
+            className={`${
+              pathname === "/post"
+                ? "text-lg font-semibold"
+                : "text-gray-400 text-lg font-semibold"
+            }`}
+          >
+            Create
+          </p>
         </Link>
         {/* Link Profile */}
         <Link href="/profile" className="flex items-center gap-x-6">

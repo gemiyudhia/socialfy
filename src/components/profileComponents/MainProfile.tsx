@@ -20,7 +20,7 @@ export default function MainProfile() {
 
       {/* Posts Section */}
       <section className="container mx-auto px-4">
-        <PostUser />
+        <PostUser username={session?.user?.username || ""} />
       </section>
     </div>
   );
