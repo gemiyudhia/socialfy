@@ -60,7 +60,7 @@ export default function Post() {
             {/* Header */}
             <div className="flex items-center p-4">
               <Image
-                src="/images/user-avatar.png" // Default user avatar
+                src="/images/default-profile.png"
                 alt={`${post.username}'s avatar`}
                 width={40}
                 height={40}

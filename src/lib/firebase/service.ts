@@ -6,6 +6,7 @@ import {
   getDocs,
   addDoc,
   getFirestore,
+  updateDoc,
 } from "firebase/firestore";
 import {
   createUserWithEmailAndPassword,
@@ -133,6 +134,13 @@ export async function login(data: { email: string; password: string }) {
 
     const userData = userDoc.data();
 
+    // Tambahkan foto profil default jika tidak ada
+    const defaultPhotoURL = "/images/default-profile.png"; // Path relatif ke public
+    if (!userData.photoURL) {
+      await updateDoc(userDoc.ref, { photoURL: defaultPhotoURL });
+      userData.photoURL = defaultPhotoURL; // Update lokal
+    }
+
     // Gunakan Firebase Authentication untuk autentikasi berdasarkan email
     const userCredential = await signInWithEmailAndPassword(
       auth,
@@ -152,6 +160,7 @@ export async function login(data: { email: string; password: string }) {
       user: {
         email: user.email,
         username: userData.username,
+        photoURL: userData.photoURL,
         role: userData.role,
         createdAt: userData.createdAt,
       },
@@ -161,6 +170,7 @@ export async function login(data: { email: string; password: string }) {
     return { status: false, error: "Invalid credentials" };
   }
 }
+
 
 export async function fetchPostByUser(username: string): Promise<Post[]> {
   try {

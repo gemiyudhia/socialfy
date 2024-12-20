@@ -13,7 +13,7 @@ export default function MainProfile() {
       {/* Profile Section */}
       <section className="container mx-auto px-4 py-6">
         <div className="flex flex-wrap md:flex-nowrap items-center space-y-4 md:space-x-6 gap-x-4">
-          <ProfilePicture />
+          <ProfilePicture photoUrl={session?.user?.username || '/images/default-profile.png'} />
           <ProfileInfo session={session} />
         </div>
       </section>
