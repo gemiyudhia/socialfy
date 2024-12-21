@@ -20,11 +20,16 @@ const authOptions: NextAuthOptions = {
 
         const response = await login({ email, password });
 
-        if (!response.status) {
+        if (!response.status || !response.user) {
           throw new Error(response.error || "Login failed");
         }
 
-        return response.user;
+        return {
+          email: response.user.email,
+          username: response.user.username,
+          role: response.user.role,
+          userId: response.user.userId, // Tambahkan userId
+        };
       },
     }),
   ],
@@ -34,14 +39,16 @@ const authOptions: NextAuthOptions = {
         token.email = user.email;
         token.username = user.username;
         token.role = user.role;
+        token.userId = user.userId; // Tambahkan userId ke token
       }
       return token;
     },
     async session({ session, token }) {
       session.user = {
-        email: token.email,
-        username: token.username,
-        role: token.role,
+        email: token.email as string,
+        username: token.username as string,
+        role: token.role as string,
+        userId: token.userId as string, // Tambahkan userId ke sesi
       };
       return session;
     },
@@ -50,7 +57,6 @@ const authOptions: NextAuthOptions = {
     signIn: "/login",
   },
 };
-
 const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };

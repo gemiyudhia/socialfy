@@ -23,5 +23,5 @@ export default async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/profile", "/posting", "/login", "/register"], // Tambahkan semua halaman yang diperiksa
+  matcher: ["/", "/profile/:path*", "/posting", "/login", "/register"], // Tambahkan semua halaman yang diperiksa
 };
