@@ -1,22 +1,24 @@
 import Image from "next/image";
+import useProfileStore from "@/store/useProfileStore";
 
-type ProfilePictureProps = {
+interface ProfilePictureProps {
   photoUrl: string;
-};
+}
 
 export default function ProfilePicture({ photoUrl }: ProfilePictureProps) {
-  // Validasi apakah photoUrl adalah URL relatif atau absolut
-  const validPhotoUrl =
-    photoUrl.startsWith("/") || photoUrl.startsWith("http")
-      ? photoUrl
-      : "/images/default-profile.png";
+  const { profilePicture } = useProfileStore();
+
+  // Check if photoUrl or profilePicture is a valid base64 string
+  const imageSrc = photoUrl?.startsWith("data:image/")
+    ? photoUrl
+    : profilePicture || "/images/default-profile.png";
 
   return (
     <Image
-      src={validPhotoUrl}
+      src={imageSrc}
       alt="Profile Picture"
-      height={100}
       width={100}
+      height={100}
       className="w-28 h-28 rounded-full border-2 border-gray-300"
     />
   );

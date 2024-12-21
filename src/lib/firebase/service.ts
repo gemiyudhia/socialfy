@@ -23,6 +23,7 @@ export async function register(data: {
   password: string;
   username: string;
   bio?: string;
+  photoURL?: string
   role?: string;
 }) {
   if (!data.email || !data.password || !data.username) {
@@ -82,6 +83,7 @@ export async function register(data: {
       role: data.role || "user",
       bio: data.bio || "",
       createdAt: new Date(),
+      
       userId, // Menyimpan userId untuk referensi
     });
 

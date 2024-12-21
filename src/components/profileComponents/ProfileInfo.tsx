@@ -7,8 +7,8 @@ import Link from "next/link";
 type ProfileInfoProps = {
   session: {
     user: {
-      username: string;
-      userId: string;
+      username?: string;
+      userId?: string;
       bio?: string;
     };
   } | null;
