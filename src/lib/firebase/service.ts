@@ -23,7 +23,7 @@ export async function register(data: {
   password: string;
   username: string;
   bio?: string;
-  photoURL?: string
+  photoURL?: string;
   role?: string;
 }) {
   if (!data.email || !data.password || !data.username) {
@@ -83,7 +83,7 @@ export async function register(data: {
       role: data.role || "user",
       bio: data.bio || "",
       createdAt: new Date(),
-      
+
       userId, // Menyimpan userId untuk referensi
     });
 
@@ -100,7 +100,6 @@ export async function register(data: {
     return { status: false, statusCode: 400, message: "Register failed" };
   }
 }
-
 
 export async function login(data: { email: string; password: string }) {
   try {
@@ -120,10 +119,13 @@ export async function login(data: { email: string; password: string }) {
       }
     } else {
       // Gunakan username sebagai ID dokumen
-      const userRef = doc(firestore, "users", data.email);
-      const userSnapshot = await getDoc(userRef);
-      if (userSnapshot.exists()) {
-        userDoc = { ref: userRef, data: () => userSnapshot.data() };
+      const usernameQuery = query(
+        collection(firestore, "users"),
+        where("username", "==", data.email)
+      );
+      const usernameSnapshot = await getDocs(usernameQuery);
+      if (!usernameSnapshot.empty) {
+        userDoc = usernameSnapshot.docs[0];
       }
     }
 
@@ -166,7 +168,6 @@ export async function login(data: { email: string; password: string }) {
   }
 }
 
-
 export async function fetchPostByUser(username: string): Promise<Post[]> {
   try {
     const postsRef = collection(firestore, "posts");
@@ -203,13 +204,4 @@ export async function fetchBioByUserId(userId: string): Promise<string | null> {
     console.error("Error fetching bio by userId:", error);
     throw error;
   }
-}
-
-export async function fetchUserBio(userId: string): Promise<string | null> {
-  const userRef = doc(firestore, "users", userId);
-  const userSnapshot = await getDoc(userRef);
-  if (userSnapshot.exists()) {
-    return userSnapshot.data()?.bio || null;
-  }
-  return null;
 }
