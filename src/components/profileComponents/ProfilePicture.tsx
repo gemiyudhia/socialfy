@@ -1,14 +1,14 @@
 import Image from "next/image";
-import useProfileStore from "@/store/useProfileStore";
+import useEditProfile from "@/hooks/useEditProfile"; // Import custom hook
 
 interface ProfilePictureProps {
-  photoUrl: string;
+  photoUrl?: string; // Optional, in case it's provided
 }
 
 export default function ProfilePicture({ photoUrl }: ProfilePictureProps) {
-  const { profilePicture } = useProfileStore();
+  const { profilePicture } = useEditProfile(); // Use custom hook
 
-  // Check if photoUrl or profilePicture is a valid base64 string
+  // Determine which image to display
   const imageSrc = photoUrl?.startsWith("data:image/")
     ? photoUrl
     : profilePicture || "/images/default-profile.png";

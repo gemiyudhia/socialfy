@@ -13,30 +13,43 @@ const useEditProfile = () => {
 
   const { profilePicture, setProfilePicture } = useProfileStore();
 
-  const [bio, setBio] = useState(session?.user?.bio || "");
+  const [bio, setBio] = useState("");
   const [photo, setPhoto] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!session?.user?.userId) return;
+
     const fetchUserData = async () => {
-      if (!session?.user?.userId) return;
+      const userId = session?.user?.userId;
 
-      const userRef = doc(firestore, "users", session.user.userId);
-      const userSnapshot = await getDoc(userRef);
+      if (!userId) return;
 
-      if (userSnapshot.exists()) {
-        const userData = userSnapshot.data();
-        const profilePictureBase64 = `data:${userData.profilePictureType};base64,${userData.profilePicture}`;
-        setProfilePicture(profilePictureBase64);
-        setBio(userData.bio || "");
+      try {
+        const userRef = doc(firestore, "users", userId);
+        const userSnapshot = await getDoc(userRef);
+
+        if (userSnapshot.exists()) {
+          const userData = userSnapshot.data();
+          const profilePictureBase64 = `data:${userData.profilePictureType};base64,${userData.profilePicture}`;
+          setProfilePicture(profilePictureBase64);
+          setBio(userData.bio || "");
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
       }
     };
 
     fetchUserData();
-  }, [session, setProfilePicture]);
+  }, [session?.user?.userId, setProfilePicture]);
 
   const handleSave = async () => {
     if (!session?.user?.userId) return;
+
+    setIsLoading(true);
+    setError(null);
 
     try {
       const userRef = doc(firestore, "users", session.user.userId);
@@ -61,9 +74,8 @@ const useEditProfile = () => {
           if (response.ok) {
             const profilePictureBase64 = `data:${fileType};base64,${fileData}`;
             setProfilePicture(profilePictureBase64);
-            console.log("Photo uploaded successfully");
           } else {
-            console.error("Error uploading photo");
+            throw new Error("Error uploading photo");
           }
         };
         reader.readAsDataURL(photo);
@@ -71,7 +83,14 @@ const useEditProfile = () => {
 
       push("/profile");
     } catch (error) {
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError("An unexpected error occurred");
+      }
       console.error("Error saving profile:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -83,6 +102,8 @@ const useEditProfile = () => {
     preview,
     setPhoto,
     handleSave,
+    isLoading,
+    error,
   };
 };
 
