@@ -95,7 +95,7 @@ export default function Post() {
 
             {/* Interaction Buttons */}
             <div className="p-4 border-t">
-              <InteractionButton />
+              <InteractionButton postId={post.id} />
             </div>
           </div>
         ))}
