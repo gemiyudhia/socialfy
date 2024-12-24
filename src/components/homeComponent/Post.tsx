@@ -3,7 +3,7 @@
 import Image from "next/image";
 import InteractionButton from "./InteractionButton";
 import { useEffect, useState } from "react";
-import { collection, getDocs, orderBy, query } from "firebase/firestore";
+import { collection, getDocs, orderBy, query, doc } from "firebase/firestore";
 import { db } from "@/lib/firebase/init";
 import { formatDistanceToNowStrict } from "date-fns";
 import Link from "next/link";
@@ -19,7 +19,7 @@ interface PostData {
 interface UserData {
   id: string;
   username: string;
-  avatarUrl?: string;
+  profilePicture?: string;
 }
 
 export default function Post() {
@@ -66,7 +66,7 @@ export default function Post() {
       const userSnapshot = await getDocs(userCollection);
       const userList = userSnapshot.docs.reduce((acc, doc) => {
         const data = doc.data() as UserData;
-        acc[data.username] = { id: data.userId, ...data }; // Use username as key
+        acc[data.username] = { id: doc.id, ...data };
         return acc;
       }, {} as { [key: string]: UserData });
 
@@ -80,19 +80,28 @@ export default function Post() {
     <div className="max-w-2xl mx-auto space-y-6">
       {posts.length > 0 &&
         posts.map((post) => {
-          const user = users[post.username]; // Now match username to users by username
+          const user = users[post.username]; // Match username to users by username
 
           return (
             <div key={post.id} className="bg-white rounded-lg shadow">
               {/* Header */}
               <div className="flex items-center p-4">
                 <Image
-                  src={user?.avatarUrl || "/images/default-profile.png"}
+                  src={`data:image/jpeg;base64,${
+                    user?.profilePicture || "/images/default-profile.png"
+                  }`}
                   alt={`${user?.username}'s avatar`}
                   width={40}
                   height={40}
-                  className="rounded-full"
+                  className="rounded-full object-cover overflow-hidden"
+                  style={{
+                    width: "40px", // Pastikan lebar tetap
+                    height: "40px", // Pastikan tinggi tetap
+                    borderRadius: "50%", // Buat gambar menjadi bulat
+                    objectFit: "cover", // Memastikan gambar menyesuaikan tanpa distorsi
+                  }}
                 />
+
                 <div className="ml-3">
                   <Link href={`/profile/${user?.id}`}>
                     <p className="font-semibold text-sm">
