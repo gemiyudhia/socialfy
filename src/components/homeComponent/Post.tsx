@@ -5,9 +5,8 @@ import InteractionButton from "./InteractionButton";
 import { useEffect, useState } from "react";
 import { collection, getDocs, orderBy, query } from "firebase/firestore";
 import { db } from "@/lib/firebase/init";
-
-// Import date formatting library for relative time
 import { formatDistanceToNowStrict } from "date-fns";
+import Link from "next/link";
 
 interface PostData {
   id: string;
@@ -17,15 +16,22 @@ interface PostData {
   imageUrl: string;
 }
 
+interface UserData {
+  id: string;
+  username: string;
+  avatarUrl?: string;
+}
+
 export default function Post() {
   const [posts, setPost] = useState<PostData[]>([]);
+  const [users, setUsers] = useState<{ [key: string]: UserData }>({});
   const [time, setTime] = useState<{ [key: string]: string }>({});
 
-  // Fetch posts from Firebase Firestore
+  // Fetch posts from Firestore
   useEffect(() => {
     const fetchPost = async () => {
       const postCollection = collection(db, "posts");
-      const postQuery = query(postCollection, orderBy("createdAt", "desc")); // Sort by createdAt
+      const postQuery = query(postCollection, orderBy("createdAt", "desc"));
       const postSnapshot = await getDocs(postQuery);
       const postList = postSnapshot.docs.map((doc) => ({
         id: doc.id,
@@ -52,53 +58,80 @@ export default function Post() {
     fetchPost();
   }, []);
 
+  // Fetch users from Firestore based on username in posts
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const userCollection = collection(db, "users");
+      // Get all users
+      const userSnapshot = await getDocs(userCollection);
+      const userList = userSnapshot.docs.reduce((acc, doc) => {
+        const data = doc.data() as UserData;
+        acc[data.username] = { id: data.userId, ...data }; // Use username as key
+        return acc;
+      }, {} as { [key: string]: UserData });
+
+      setUsers(userList);
+    };
+
+    fetchUsers();
+  }, []);
+
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       {posts.length > 0 &&
-        posts.map((post) => (
-          <div key={post.id} className="bg-white rounded-lg shadow">
-            {/* Header */}
-            <div className="flex items-center p-4">
-              <Image
-                src="/images/default-profile.png"
-                alt={`${post.username}'s avatar`}
-                width={40}
-                height={40}
-                className="rounded-full"
-              />
-              <div className="ml-3">
-                <p className="font-semibold text-sm">{post.username}</p>
-                <p className="text-xs text-gray-500">
-                  {time[post.id] || "Loading..."}
+        posts.map((post) => {
+          const user = users[post.username]; // Now match username to users by username
+
+          return (
+            <div key={post.id} className="bg-white rounded-lg shadow">
+              {/* Header */}
+              <div className="flex items-center p-4">
+                <Image
+                  src={user?.avatarUrl || "/images/default-profile.png"}
+                  alt={`${user?.username}'s avatar`}
+                  width={40}
+                  height={40}
+                  className="rounded-full"
+                />
+                <div className="ml-3">
+                  <Link href={`/profile/${user?.id}`}>
+                    <p className="font-semibold text-sm">
+                      {user?.username || "Unknown User"}{" "}
+                      {/* Show correct username */}
+                    </p>
+                  </Link>
+                  <p className="text-xs text-gray-500">
+                    {time[post.id] || "Loading..."}
+                  </p>
+                </div>
+              </div>
+
+              {/* Post Image */}
+              <div className="w-full">
+                <Image
+                  src={post.imageUrl}
+                  alt={`${user?.username}'s post`}
+                  width={500}
+                  height={500}
+                  className="w-full h-auto object-cover"
+                />
+              </div>
+
+              {/* Caption */}
+              <div className="p-4">
+                <p className="text-sm text-gray-700">
+                  <span className="font-semibold">{user?.username}</span>{" "}
+                  {post.caption}
                 </p>
               </div>
-            </div>
 
-            {/* Post Image */}
-            <div className="w-full">
-              <Image
-                src={post.imageUrl}
-                alt={`${post.username}'s post`}
-                width={500}
-                height={500}
-                className="w-full h-auto object-cover"
-              />
+              {/* Interaction Buttons */}
+              <div className="p-4 border-t">
+                <InteractionButton postId={post.id} />
+              </div>
             </div>
-
-            {/* Caption */}
-            <div className="p-4">
-              <p className="text-sm text-gray-700">
-                <span className="font-semibold">{post.username}</span>{" "}
-                {post.caption}
-              </p>
-            </div>
-
-            {/* Interaction Buttons */}
-            <div className="p-4 border-t">
-              <InteractionButton postId={post.id} />
-            </div>
-          </div>
-        ))}
+          );
+        })}
     </div>
   );
 }

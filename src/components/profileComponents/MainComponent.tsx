@@ -1,9 +1,17 @@
 import MainProfile from "./MainProfile";
 
-export default function MainComponent() {
+interface MainComponentProps {
+  params: {
+    userId: string;
+  };
+}
+
+export default function MainComponent({ params }: MainComponentProps) {
+  const { userId } = params;
+
   return (
     <div className=" bg-gray-100 min-h-screen">
-      <MainProfile />
+      <MainProfile userId={userId} />
     </div>
   );
 }

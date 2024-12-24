@@ -1,10 +1,15 @@
 import MainComponent from "@/components/profileComponents/MainComponent";
 
-export default function ProfilePage() {
+interface ProfilePageProps {
+  params: {
+    userId: string;
+  };
+}
 
+export default function ProfilePage({ params }: ProfilePageProps) {
   return (
     <div>
-      <MainComponent />
+      <MainComponent params={params} />
     </div>
   );
 }
