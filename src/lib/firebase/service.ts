@@ -181,6 +181,8 @@ export async function fetchPostByUser(username: string): Promise<Post[]> {
         id: doc.id,
         username: data.username,
         caption: data.caption,
+        likes: data.likes,
+        comments: data.comments,
         imageUrl: data.imageUrl,
         createdAt: data.createdAt,
       };

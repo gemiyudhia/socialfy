@@ -1,10 +1,18 @@
-'use client'
+"use client";
 
 import { fetchPostByUser } from "@/lib/firebase/service";
 import { Post } from "@/types/post";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { FiCameraOff } from "react-icons/fi";
+import { FiCameraOff, FiHeart, FiMessageCircle } from "react-icons/fi";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "../ui/input";
+import { Button } from "../ui/button";
 
 type PostUserProps = {
   username: string;
@@ -12,6 +20,8 @@ type PostUserProps = {
 
 export default function PostUser({ username }: PostUserProps) {
   const [posts, setPosts] = useState<Post[]>([]);
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null); // Untuk modal
+  const [isModalOpen, setIsModalOpen] = useState(false); // Kontrol modal
 
   useEffect(() => {
     const fetchData = async () => {
@@ -26,6 +36,16 @@ export default function PostUser({ username }: PostUserProps) {
     fetchData();
   }, [username]);
 
+  const openPostModal = (post: Post) => {
+    setSelectedPost(post);
+    setIsModalOpen(true);
+  };
+
+  const closePostModal = () => {
+    setSelectedPost(null);
+    setIsModalOpen(false);
+  };
+
   return (
     <div className="mt-12">
       {posts.length > 0 ? (
@@ -33,7 +53,8 @@ export default function PostUser({ username }: PostUserProps) {
           {posts.map((post) => (
             <div
               key={post.id}
-              className="bg-white shadow-lg rounded-lg overflow-hidden"
+              className="bg-white shadow-lg rounded-lg overflow-hidden cursor-pointer"
+              onClick={() => openPostModal(post)}
             >
               {/* Gambar Post */}
               <div className="relative w-full h-64">
@@ -54,6 +75,84 @@ export default function PostUser({ username }: PostUserProps) {
           <p className="text-center text-gray-500">No posts available.</p>
         </div>
       )}
+
+      <Dialog open={isModalOpen} onOpenChange={closePostModal}>
+        <DialogContent className="sm:max-w-[425px] md:max-w-[700px] lg:max-w-[1000px] p-0">
+          {selectedPost && (
+            <div className="flex flex-col md:flex-row">
+              {/* Image Section */}
+              <div className="relative w-full md:w-[60%] aspect-square bg-black">
+                <Image
+                  src={selectedPost.imageUrl || ""}
+                  alt="Post Image"
+                  className="object-contain w-full h-full"
+                  layout="fill"
+                />
+              </div>
+
+              {/* Details Section */}
+              <div className="flex flex-col w-full md:w-[40%] bg-white">
+                <DialogHeader className="flex items-center p-4 border-b">
+                  
+                  <DialogTitle className="text-sm font-semibold">
+                    {selectedPost.username}
+                  </DialogTitle>
+                 
+                </DialogHeader>
+
+                {/* Caption and Comments */}
+                <div className="flex-grow overflow-y-auto p-4">
+                  <div className="flex items-start mb-4">
+                    
+                    <div>
+                      <span className="font-semibold text-sm mr-2">
+                        {selectedPost.username}
+                      </span>
+                      <span className="text-sm">{selectedPost.caption}</span>
+                    </div>
+                  </div>
+                  {selectedPost.comments?.map((comment) => (
+                    <div key={comment.id} className="flex items-start mb-4">
+                    
+                      <div>
+                        <span className="font-semibold text-sm mr-2">
+                          {comment.username}
+                        </span>
+                        <span className="text-sm">{comment.text}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Actions and Likes */}
+                <div className="p-4 border-t">
+                  <div className="flex items-center space-x-4 mb-2">
+                    <Button variant="ghost" size="icon">
+                      <FiHeart className="h-6 w-6" />
+                    </Button>
+                    <Button variant="ghost" size="icon">
+                      <FiMessageCircle className="h-6 w-6" />
+                    </Button>
+                    
+                  </div>
+                  <div className="font-semibold text-sm mb-2">
+                    {selectedPost.likes?.length > 0
+                      ? `${selectedPost.likes.length} likes`
+                      : "Be the first to like this"}
+                  </div>
+                  <div className="flex items-center">
+                    <Input
+                      placeholder="Add a comment..."
+                      className="flex-grow mr-2"
+                    />
+                    <Button variant="ghost">Post</Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

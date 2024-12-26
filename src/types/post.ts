@@ -1,7 +1,15 @@
 export interface Post {
   id: string;
-  username: string;
+  imageUrl: string;
   caption: string;
-  imageUrl?: string;
+  likes: number;
+  comments: Comment[];
+  username: string;
   createdAt: string;
+}
+
+export interface Comment {
+  id: string;
+  username: string;
+  text: string;
 }
