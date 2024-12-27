@@ -20,6 +20,7 @@ interface UserData {
   id: string;
   username: string;
   profilePicture?: string;
+  profilePictureType: string;
 }
 
 export default function Post() {
@@ -86,7 +87,7 @@ export default function Post() {
             {/* Header */}
             <div className="flex items-center p-4">
               <Image
-                src={user?.profilePicture || "/images/default-profile.png"}
+                src={`data:${user?.profilePictureType};base64,${user?.profilePicture}`}
                 alt={`${user?.username}'s avatar`}
                 width={40}
                 height={40}
