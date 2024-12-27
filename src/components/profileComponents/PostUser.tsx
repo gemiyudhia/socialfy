@@ -4,15 +4,14 @@ import { fetchPostByUser } from "@/lib/firebase/service";
 import { Post } from "@/types/post";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { FiCameraOff, FiHeart, FiMessageCircle } from "react-icons/fi";
+import { FiCameraOff } from "react-icons/fi";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "../ui/input";
-import { Button } from "../ui/button";
+import InteractionButton from "../homeComponent/InteractionButton";
 
 type PostUserProps = {
   username: string;
@@ -79,7 +78,7 @@ export default function PostUser({ username }: PostUserProps) {
       <Dialog open={isModalOpen} onOpenChange={closePostModal}>
         <DialogContent className="sm:max-w-[425px] md:max-w-[700px] lg:max-w-[1000px] p-0">
           {selectedPost && (
-            <div className="flex flex-col md:flex-row">
+            <div className="flex flex-col md:flex-row" key={selectedPost.id}>
               {/* Image Section */}
               <div className="relative w-full md:w-[60%] aspect-square bg-black">
                 <Image
@@ -124,30 +123,7 @@ export default function PostUser({ username }: PostUserProps) {
                   ))}
                 </div>
 
-                {/* Actions and Likes */}
-                <div className="p-4 border-t">
-                  <div className="flex items-center space-x-4 mb-2">
-                    <Button variant="ghost" size="icon">
-                      <FiHeart className="h-6 w-6" />
-                    </Button>
-                    <Button variant="ghost" size="icon">
-                      <FiMessageCircle className="h-6 w-6" />
-                    </Button>
-                    
-                  </div>
-                  <div className="font-semibold text-sm mb-2">
-                    {selectedPost.likes?.length > 0
-                      ? `${selectedPost.likes.length} likes`
-                      : "Be the first to like this"}
-                  </div>
-                  <div className="flex items-center">
-                    <Input
-                      placeholder="Add a comment..."
-                      className="flex-grow mr-2"
-                    />
-                    <Button variant="ghost">Post</Button>
-                  </div>
-                </div>
+                <InteractionButton postId={selectedPost.id} />
               </div>
             </div>
           )}

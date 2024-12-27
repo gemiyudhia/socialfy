@@ -78,69 +78,59 @@ export default function Post() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      {posts.length > 0 &&
-        posts.map((post) => {
-          const user = users[post.username]; // Match username to users by username
+      {posts.map((post) => {
+        const user = users[post.username]; // Match username to users by username
 
-          return (
-            <div key={post.id} className="bg-white rounded-lg shadow">
-              {/* Header */}
-              <div className="flex items-center p-4">
-                <Image
-                  src={`data:image/jpeg;base64,${
-                    user?.profilePicture || "/images/default-profile.png"
-                  }`}
-                  alt={`${user?.username}'s avatar`}
-                  width={40}
-                  height={40}
-                  className="rounded-full object-cover overflow-hidden"
-                  style={{
-                    width: "40px", // Pastikan lebar tetap
-                    height: "40px", // Pastikan tinggi tetap
-                    borderRadius: "50%", // Buat gambar menjadi bulat
-                    objectFit: "cover", // Memastikan gambar menyesuaikan tanpa distorsi
-                  }}
-                />
+        return (
+          <div key={post.id} className="bg-white rounded-lg shadow">
+            {/* Header */}
+            <div className="flex items-center p-4">
+              <Image
+                src={user?.profilePicture || "/images/default-profile.png"}
+                alt={`${user?.username}'s avatar`}
+                width={40}
+                height={40}
+                className="rounded-full object-cover"
+              />
 
-                <div className="ml-3">
-                  <Link href={`/profile/${user?.id}`}>
-                    <p className="font-semibold text-sm">
-                      {user?.username || "Unknown User"}{" "}
-                      {/* Show correct username */}
-                    </p>
-                  </Link>
-                  <p className="text-xs text-gray-500">
-                    {time[post.id] || "Loading..."}
+              <div className="ml-3">
+                <Link href={`/profile/${user?.id || "unknown"}`}>
+                  <p className="font-semibold text-sm">
+                    {user?.username || "Unknown User"}
                   </p>
-                </div>
-              </div>
-
-              {/* Post Image */}
-              <div className="w-full">
-                <Image
-                  src={post.imageUrl}
-                  alt={`${user?.username}'s post`}
-                  width={500}
-                  height={500}
-                  className="w-full h-auto object-cover"
-                />
-              </div>
-
-              {/* Caption */}
-              <div className="p-4">
-                <p className="text-sm text-gray-700">
-                  <span className="font-semibold">{user?.username}</span>{" "}
-                  {post.caption}
+                </Link>
+                <p className="text-xs text-gray-500">
+                  {time[post.id] || "Loading..."}
                 </p>
               </div>
-
-              {/* Interaction Buttons */}
-              <div className="p-4 border-t">
-                <InteractionButton postId={post.id} />
-              </div>
             </div>
-          );
-        })}
+
+            {/* Post Image */}
+            <div className="w-full">
+              <Image
+                src={post.imageUrl}
+                alt={`${user?.username}'s post`}
+                width={500}
+                height={500}
+                className="w-full h-auto object-cover"
+              />
+            </div>
+
+            {/* Caption */}
+            <div className="p-4">
+              <p className="text-sm text-gray-700">
+                <span className="font-semibold">{user?.username}</span>{" "}
+                {post.caption}
+              </p>
+            </div>
+
+            {/* Interaction Buttons */}
+            <div className="p-4 border-t">
+              <InteractionButton postId={post.id} />
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }

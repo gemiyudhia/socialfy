@@ -12,6 +12,7 @@ import {
 } from "firebase/firestore";
 import { db } from "@/lib/firebase/init";
 import { useSession } from "next-auth/react";
+import { usePathname } from "next/navigation";
 
 interface InteractionButtonProps {
   postId: string;
@@ -24,6 +25,8 @@ interface Comment {
   timestamp: string;
 }
 
+const disabeldComment = ['/profile']
+
 export default function InteractionButton({ postId }: InteractionButtonProps) {
   const { data: session } = useSession();
   const [liked, setLiked] = useState<boolean>(false);
@@ -32,10 +35,12 @@ export default function InteractionButton({ postId }: InteractionButtonProps) {
   const [newComment, setNewComment] = useState<string>("");
   const [showComments, setShowComments] = useState<boolean>(false);
 
+  const pathname = usePathname()
+
   useEffect(() => {
-      if (session) {
-        console.log("Session has been updated:", session);
-      }
+    if (session) {
+      console.log("Session has been updated:", session);
+    }
     if (!postId) return;
 
     // Real-time listener untuk likes dan comments
@@ -76,39 +81,40 @@ export default function InteractionButton({ postId }: InteractionButtonProps) {
     }
   };
 
-  const handleAddComment = async () => {
-    if (!session?.user?.userId || !session?.user?.username) {
-      console.error("Session user data is incomplete:", session?.user);
-      alert("Unable to add comment due to incomplete user data.");
-      return;
-    }
+ const handleAddComment = async () => {
+   if (!session?.user?.userId || !session?.user?.username) {
+     alert("Unable to add comment due to incomplete user data.");
+     return;
+   }
 
-    if (!session) {
-      alert("You need to sign in to comment!");
-      return;
-    }
+   if (!newComment.trim()) {
+     alert("Comment cannot be empty!");
+     return;
+   }
 
-    if (!newComment.trim()) {
-      alert("Comment cannot be empty!");
-      return;
-    }
+   const postRef = doc(db, "posts", postId);
 
-    const postRef = doc(db, "posts", postId);
+   const newCommentObj = {
+     userId: session.user.userId,
+     username: session.user.username,
+     text: newComment.trim(),
+     timestamp: new Date().toISOString(),
+   };
 
-    try {
-      await updateDoc(postRef, {
-        comments: arrayUnion({
-          userId: session.user.userId,
-          username: session.user.username,
-          text: newComment.trim(),
-          timestamp: new Date().toISOString(),
-        }),
-      });
-      setNewComment("");
-    } catch (error) {
-      console.error("Error adding comment:", error);
-    }
-  };
+   try {
+     // Tambahkan komentar ke Firestore
+     await updateDoc(postRef, {
+       comments: arrayUnion(newCommentObj),
+     });
+
+     // Optimistic update: tambahkan komentar ke state lokal
+     setComments((prevComments) => [...prevComments, newCommentObj]);
+
+     setNewComment(""); // Reset input
+   } catch (error) {
+     console.error("Error adding comment:", error);
+   }
+ };
 
   return (
     <div className="cursor-pointer flex flex-col gap-y-5 items-start">
@@ -132,7 +138,7 @@ export default function InteractionButton({ postId }: InteractionButtonProps) {
       </div>
 
       {/* Bagian Komentar */}
-      {showComments && (
+      {showComments && !disabeldComment.includes(pathname) && (
         <div className="w-full">
           <div className="mb-3">
             {comments.map((comment, index) => (
@@ -144,23 +150,23 @@ export default function InteractionButton({ postId }: InteractionButtonProps) {
               </div>
             ))}
           </div>
-          <div className="flex items-center gap-x-2">
-            <input
-              type="text"
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              className="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm"
-              placeholder="Add a comment..."
-            />
-            <button
-              onClick={handleAddComment}
-              className="bg-blue-500 text-white px-4 py-2 rounded-md text-sm"
-            >
-              Post
-            </button>
-          </div>
         </div>
       )}
+      <div className="flex items-center gap-x-2">
+        <input
+          type="text"
+          value={newComment}
+          onChange={(e) => setNewComment(e.target.value)}
+          className="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm"
+          placeholder="Add a comment..."
+        />
+        <button
+          onClick={handleAddComment}
+          className="bg-blue-500 text-white px-4 py-2 rounded-md text-sm"
+        >
+          Post
+        </button>
+      </div>
     </div>
   );
 }
