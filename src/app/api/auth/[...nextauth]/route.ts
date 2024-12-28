@@ -25,7 +25,7 @@ const authOptions: NextAuthOptions = {
         }
 
         return {
-          email: response.user.email,
+          email: response.user.email || "", // Ensure email is not null
           username: response.user.username,
           role: response.user.role,
           userId: response.user.userId, // Tambahkan userId
