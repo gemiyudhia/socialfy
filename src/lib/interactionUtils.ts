@@ -26,12 +26,20 @@ export function usePostData(postId: string) {
         const postData = docSnapshot.data();
         setLikeCount(postData.likes?.length || 0);
         setLiked(postData.likes?.includes(session?.user?.userId) || false);
-        setComments(postData.comments || []);
+        setComments(
+          (postData.comments || []).map((comment: any) => ({
+            id: comment.id || "",
+            username: comment.username || "Unknown",
+            text: comment.text || "",
+            timestamp: comment.timestamp || "",
+          })) as Comment[]
+        );
       }
     });
 
     return () => unsubscribe();
   }, [postId, session]);
+
 
   const toggleComments = () => setShowComments((prev) => !prev);
 

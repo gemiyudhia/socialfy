@@ -4,7 +4,11 @@ import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 import { FaRegCommentDots } from "react-icons/fa";
 import CommentSection from "./CommentSection";
 import { usePathname } from "next/navigation";
-import { usePostData, handleLike, handleAddComment } from "@/lib/interactionUtils";
+import {
+  usePostData,
+  handleLike,
+  handleAddComment,
+} from "@/lib/interactionUtils";
 
 interface InteractionButtonProps {
   postId: string;

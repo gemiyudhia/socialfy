@@ -9,9 +9,10 @@ export interface Post {
 }
 
 export interface Comment {
-  id: string;
-  username: string;
-  text: string;
+  id: string; // ID unik komentar
+  username: string; // Nama pengguna
+  text: string; // Isi komentar
+  timestamp: string; // Waktu komentar
 }
 
 export interface UserProfile {

@@ -240,19 +240,24 @@ export async function getUserProfile(
   }
 }
 
-export async function getUserPosts(username: string) {
-  try {
-    const postsRef = collection(firestore, "posts");
-    const q = query(postsRef, where("username", "==", username));
-    const querySnapshot = await getDocs(q);
+export async function getUserPosts(username: string): Promise<Post[]> {
+  // Misalnya data berasal dari Firebase Firestore
+  const postsRef = collection(firestore, "posts");
+  const querySnapshot = await getDocs(
+    query(postsRef, where("username", "==", username))
+  );
 
-    return querySnapshot.docs.map((doc) => ({
+  const posts: Post[] = querySnapshot.docs.map((doc) => {
+    const data = doc.data();
+    return {
       id: doc.id,
-      ...doc.data(),
-    }));
-  } catch (error) {
-    console.error("Error fetching user posts:", error);
-    return [];
-  }
-}
+      imageUrl: data.imageUrl,
+      caption: data.caption,
+      likes: data.likes || 0,
+      comments: data.comments || 0,
+      createdAt: data.createdAt || "",
+    } as Post;
+  });
 
+  return posts;
+}
