@@ -1,172 +1,60 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 import { FaRegCommentDots } from "react-icons/fa";
-import {
-  doc,
-  updateDoc,
-  arrayUnion,
-  arrayRemove,
-  onSnapshot,
-} from "firebase/firestore";
-import { db } from "@/lib/firebase/init";
-import { useSession } from "next-auth/react";
+import CommentSection from "./CommentSection";
 import { usePathname } from "next/navigation";
+import { usePostData, handleLike, handleAddComment } from "@/lib/interactionUtils";
 
 interface InteractionButtonProps {
   postId: string;
 }
 
-interface Comment {
-  userId: string;
-  username: string;
-  text: string;
-  timestamp: string;
-}
-
-const disabeldComment = ['/profile']
+const disabledCommentPaths = ["/profile"];
 
 export default function InteractionButton({ postId }: InteractionButtonProps) {
-  const { data: session } = useSession();
-  const [liked, setLiked] = useState<boolean>(false);
-  const [likeCount, setLikeCount] = useState<number>();
-  const [comments, setComments] = useState<Comment[]>([]);
-  const [newComment, setNewComment] = useState<string>("");
-  const [showComments, setShowComments] = useState<boolean>(false);
+  const {
+    session,
+    liked,
+    likeCount,
+    comments,
+    showComments,
+    toggleComments,
+    newComment,
+    setNewComment,
+  } = usePostData(postId);
 
-  const pathname = usePathname()
-
-  useEffect(() => {
-    if (session) {
-      console.log("Session has been updated:", session);
-    }
-    if (!postId) return;
-
-    // Real-time listener untuk likes dan comments
-    const unsubscribe = onSnapshot(doc(db, "posts", postId), (docSnapshot) => {
-      if (docSnapshot.exists()) {
-        const postData = docSnapshot.data();
-        setLikeCount(postData.likes?.length);
-        setLiked(postData.likes?.includes(session?.user?.userId) || false);
-        setComments(postData.comments || []); // Memastikan comments diset ke array
-      }
-    });
-
-    return () => unsubscribe();
-  }, [postId, session]);
-
-  const handleLike = async () => {
-    if (!session) {
-      alert("You need to sign in to like posts!");
-      return;
-    }
-
-    const postRef = doc(db, "posts", postId);
-
-    try {
-      if (liked) {
-        // Hapus like
-        await updateDoc(postRef, {
-          likes: arrayRemove(session.user.userId),
-        });
-      } else {
-        // Tambah like
-        await updateDoc(postRef, {
-          likes: arrayUnion(session.user.userId),
-        });
-      }
-    } catch (error) {
-      console.error("Error updating likes:", error);
-    }
-  };
-
- const handleAddComment = async () => {
-   if (!session?.user?.userId || !session?.user?.username) {
-     alert("Unable to add comment due to incomplete user data.");
-     return;
-   }
-
-   if (!newComment.trim()) {
-     alert("Comment cannot be empty!");
-     return;
-   }
-
-   const postRef = doc(db, "posts", postId);
-
-   const newCommentObj = {
-     userId: session.user.userId,
-     username: session.user.username,
-     text: newComment.trim(),
-     timestamp: new Date().toISOString(),
-   };
-
-   try {
-     // Tambahkan komentar ke Firestore
-     await updateDoc(postRef, {
-       comments: arrayUnion(newCommentObj),
-     });
-
-     // Optimistic update: tambahkan komentar ke state lokal
-     setComments((prevComments) => [...prevComments, newCommentObj]);
-
-     setNewComment(""); // Reset input
-   } catch (error) {
-     console.error("Error adding comment:", error);
-   }
- };
+  const pathname = usePathname();
 
   return (
     <div className="cursor-pointer flex flex-col gap-y-5 items-start">
-      {/* Tombol Like */}
       <div className="flex gap-x-5 items-center">
         <div className="flex flex-col items-center">
           {liked ? (
             <AiFillHeart
               className="text-like text-3xl animate-like"
-              onClick={handleLike}
+              onClick={() => handleLike(postId, session, liked)}
             />
           ) : (
-            <AiOutlineHeart className="text-3xl" onClick={handleLike} />
+            <AiOutlineHeart
+              className="text-3xl"
+              onClick={() => handleLike(postId, session, liked)}
+            />
           )}
           <span className="text-sm">{likeCount}</span>
         </div>
-        <FaRegCommentDots
-          className="text-3xl mb-4"
-          onClick={() => setShowComments((prev) => !prev)} // Toggle komentar
-        />
+        <FaRegCommentDots className="text-3xl mb-4" onClick={toggleComments} />
       </div>
-
-      {/* Bagian Komentar */}
-      {showComments && !disabeldComment.includes(pathname) && (
-        <div className="w-full">
-          <div className="mb-3">
-            {comments.map((comment, index) => (
-              <div
-                key={index}
-                className="border-b border-gray-200 py-2 text-sm"
-              >
-                <strong>{comment.username}</strong>: {comment.text}
-              </div>
-            ))}
-          </div>
-        </div>
+      {showComments && !disabledCommentPaths.includes(pathname) && (
+        <CommentSection
+          comments={comments}
+          newComment={newComment}
+          setNewComment={setNewComment}
+          onAddComment={() =>
+            handleAddComment(postId, session, newComment, setNewComment)
+          }
+        />
       )}
-      <div className="flex items-center gap-x-2">
-        <input
-          type="text"
-          value={newComment}
-          onChange={(e) => setNewComment(e.target.value)}
-          className="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm"
-          placeholder="Add a comment..."
-        />
-        <button
-          onClick={handleAddComment}
-          className="bg-blue-500 text-white px-4 py-2 rounded-md text-sm"
-        >
-          Post
-        </button>
-      </div>
     </div>
   );
 }
