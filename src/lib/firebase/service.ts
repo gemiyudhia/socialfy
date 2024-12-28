@@ -14,7 +14,7 @@ import {
   sendEmailVerification,
   signInWithEmailAndPassword,
 } from "firebase/auth";
-import { Post } from "@/types/post";
+import { Post, UserProfile } from "@/types/post";
 
 const firestore = getFirestore(app);
 
@@ -207,3 +207,52 @@ export async function fetchBioByUserId(userId: string): Promise<string | null> {
     throw error;
   }
 }
+
+export async function getUserProfile(
+  userId: string
+): Promise<UserProfile | null> {
+  try {
+    const userRef = doc(firestore, "users", userId);
+    const docSnap = await getDoc(userRef);
+
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      // Validasi tipe data sebelum mengembalikannya
+      if (
+        data &&
+        typeof data.username === "string" &&
+        typeof data.profilePicture === "string" &&
+        typeof data.profilePictureType === "string"
+      ) {
+        return {
+          username: data.username,
+          profilePicture: data.profilePicture,
+          profilePictureType: data.profilePictureType,
+          role: data.role || undefined,
+          email: data.email || undefined,
+        };
+      }
+    }
+    return null; // Jika tidak ditemukan
+  } catch (error) {
+    console.error("Error fetching user profile:", error);
+    return null;
+  }
+}
+
+export async function getUserPosts(username: string) {
+  try {
+    const postsRef = collection(firestore, "posts");
+    const q = query(postsRef, where("username", "==", username));
+    const querySnapshot = await getDocs(q);
+
+    return querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+  } catch (error) {
+    console.error("Error fetching user posts:", error);
+    return [];
+  }
+}
+
