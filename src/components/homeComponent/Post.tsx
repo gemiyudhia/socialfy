@@ -3,7 +3,7 @@
 import Image from "next/image";
 import InteractionButton from "./InteractionButton";
 import { useEffect, useState } from "react";
-import { collection, getDocs, orderBy, query, doc } from "firebase/firestore";
+import { collection, getDocs, orderBy, query } from "firebase/firestore";
 import { db } from "@/lib/firebase/init";
 import { formatDistanceToNowStrict } from "date-fns";
 import Link from "next/link";
