@@ -13,3 +13,12 @@ export interface Comment {
   username: string;
   text: string;
 }
+
+export interface UserProfile {
+  username: string;
+  profilePicture: string;
+  profilePictureType: string;
+  role?: string;
+  email?: string;
+}
+
