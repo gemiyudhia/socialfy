@@ -35,13 +35,12 @@ export default function Post() {
       const postQuery = query(postCollection, orderBy("createdAt", "desc"));
       const postSnapshot = await getDocs(postQuery);
       const postList = postSnapshot.docs.map((doc) => {
-        const { id, ...data } = doc.data() as PostData; // Hilangkan id dari data Firestore jika ada
+        const data = doc.data() as Omit<PostData, "id">; // Hapus `id` dari tipe
         return {
           id: doc.id, // Gunakan id dari Firestore document
-          ...data, // Gunakan data lain
+          ...data, // Gabungkan data lainnya
         };
       }) as PostData[];
-
 
       setPost(postList);
 
