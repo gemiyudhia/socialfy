@@ -28,8 +28,13 @@ export async function POST(req: Request) {
     );
   } catch (error) {
     console.error("Error in upload route:", error);
+
+    // Handle unknown error type
+    const errorMessage =
+      error instanceof Error ? error.message : "An unknown error occurred";
+
     return NextResponse.json(
-      { message: `Failed to create post: ${error.message}` },
+      { message: `Failed to create post: ${errorMessage}` },
       { status: 500 }
     );
   }
