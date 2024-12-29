@@ -18,27 +18,29 @@ export function usePostData(postId: string) {
   const [newComment, setNewComment] = useState<string>("");
   const [showComments, setShowComments] = useState<boolean>(false);
 
-  useEffect(() => {
-    if (!postId) return;
+useEffect(() => {
+  if (!postId) return;
 
-    const unsubscribe = onSnapshot(doc(db, "posts", postId), (docSnapshot) => {
-      if (docSnapshot.exists()) {
-        const postData = docSnapshot.data();
-        setLikeCount(postData.likes?.length || 0);
-        setLiked(postData.likes?.includes(session?.user?.userId) || false);
-        setComments(
-          (postData.comments || []).map((comment: any) => ({
-            id: comment.id || "",
-            username: comment.username || "Unknown",
-            text: comment.text || "",
-            timestamp: comment.timestamp || "",
-          })) as Comment[]
-        );
-      }
-    });
+  const unsubscribe = onSnapshot(doc(db, "posts", postId), (docSnapshot) => {
+    if (docSnapshot.exists()) {
+      const postData = docSnapshot.data();
+      setLikeCount(postData.likes?.length || 0);
+      setLiked(postData.likes?.includes(session?.user?.userId) || false);
 
-    return () => unsubscribe();
-  }, [postId, session]);
+      // Memastikan komentar sesuai dengan tipe Comment
+      setComments(
+        (postData.comments || []).map((comment: any) => ({
+          id: comment.id || "", // Pastikan id ada
+          username: comment.username || "Unknown", // Jika tidak ada, gunakan "Unknown"
+          text: comment.text || "", // Jika tidak ada, gunakan string kosong
+          timestamp: comment.timestamp || "", // Jika tidak ada, gunakan string kosong
+        }))
+      );
+    }
+  });
+
+  return () => unsubscribe();
+}, [postId, session]);
 
 
   const toggleComments = () => setShowComments((prev) => !prev);
