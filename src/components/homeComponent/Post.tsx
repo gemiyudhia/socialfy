@@ -70,7 +70,9 @@ export default function Post() {
       const userSnapshot = await getDocs(userCollection);
       const userList = userSnapshot.docs.reduce((acc, doc) => {
         const data = doc.data() as UserData;
-        acc[data.username] = { id: doc.id, ...data };
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { id: _, ...rest } = data; // Hapus properti 'id' dari data
+        acc[data.username] = { id: doc.id, ...rest }; // Gunakan id dari Firestore
         return acc;
       }, {} as { [key: string]: UserData });
 
