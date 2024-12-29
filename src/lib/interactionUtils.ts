@@ -9,6 +9,7 @@ import {
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { db } from "@/lib/firebase/init";
+import { Comment } from "@/types/post";
 
 export function usePostData(postId: string) {
   const { data: session } = useSession();
