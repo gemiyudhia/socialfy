@@ -14,7 +14,8 @@
 - **Next.js**: A React framework for server-side rendering and web app development.  
 - **Tailwind CSS**: A utility-first CSS framework for responsive designs.  
 - **TypeScript**: A JavaScript superset that adds static typing.  
-- **Firebase**: A backend platform for authentication and data storage.  
+- **Firebase**: A backend platform for authentication and data storage.
+- **NextAuth.js**: A library for authentication in Next.js applications.
 
 ## Installation  
 
